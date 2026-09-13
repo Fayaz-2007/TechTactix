@@ -1,0 +1,47 @@
+.report-download {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.report-download__label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.report-download__button {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-accent);
+  background: var(--color-accent);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.report-download__button:hover:not(:disabled) {
+  background: var(--color-accent-dark);
+}
+
+.report-download__button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.report-download__button--secondary {
+  background: #ffffff;
+  color: var(--color-accent);
+}
+
+.report-download__button--secondary:hover:not(:disabled) {
+  background: #eef2ff;
+}
+
+.report-download__error {
+  font-size: 12.5px;
+  color: var(--color-danger);
+}

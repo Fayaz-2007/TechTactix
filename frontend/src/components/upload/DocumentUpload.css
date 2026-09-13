@@ -1,0 +1,72 @@
+.document-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.document-upload__dropzone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 22px 16px;
+  border: 1.5px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-panel);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.document-upload__dropzone:hover {
+  border-color: var(--color-accent);
+  background: #f8faff;
+}
+
+.document-upload__dropzone--dragging {
+  border-color: var(--color-accent);
+  background: #eef2ff;
+}
+
+.document-upload__dropzone--busy {
+  cursor: default;
+  border-color: var(--color-border);
+  background: var(--color-neutral-bg);
+}
+
+.document-upload__input {
+  display: none;
+}
+
+.document-upload__icon {
+  font-size: 20px;
+  color: var(--color-accent);
+  line-height: 1;
+}
+
+.document-upload__text {
+  font-size: 13.5px;
+  text-align: center;
+}
+
+.document-upload__text strong {
+  color: var(--color-text);
+}
+
+.document-upload__message {
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.document-upload__message--success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.document-upload__message--error {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}

@@ -1,0 +1,52 @@
+:root {
+  --color-bg: #f3f5f8;
+  --color-panel: #ffffff;
+  --color-border: #e2e6ec;
+  --color-text: #1c2230;
+  --color-text-muted: #667085;
+  --color-accent: #2952cc;
+  --color-accent-dark: #1e3d99;
+  --color-accent-tint: rgba(41, 82, 204, 0.1);
+  --color-accent-tint-strong: rgba(41, 82, 204, 0.18);
+  --color-success: #17803d;
+  --color-success-bg: #e8f7ee;
+  --color-danger: #c0301f;
+  --color-danger-bg: #fbeae7;
+  --color-neutral-bg: #eef0f4;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+  --shadow-panel: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Inter", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+}
+
+textarea,
+input {
+  font-family: inherit;
+}
+
+@keyframes spin-mark {
+  to { transform: rotate(360deg); }
+}
