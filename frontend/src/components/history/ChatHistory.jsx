@@ -7,8 +7,10 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
+  Trash2,
+  X,
 } from "lucide-react";
-import { createProject, getHistory, getProjects, getSessionMessages } from "../../api/client";
+import { createProject, deleteSession, getHistory, getProjects, getSessionMessages } from "../../api/client";
 import "./ChatHistory.css";
 
 function formatRelativeTime(isoString) {
@@ -66,6 +68,10 @@ function ChatHistory({
   const [isSavingProject, setIsSavingProject] = useState(false);
   const dropdownRef = useRef(null);
 
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const pendingDeleteRowRef = useRef(null);
+
   useEffect(() => {
     getProjects()
       .then(setProjects)
@@ -104,6 +110,19 @@ function ChatHistory({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownOpen]);
 
+  useEffect(() => {
+    if (!pendingDeleteId) return undefined;
+
+    const handleClickOutside = (event) => {
+      if (pendingDeleteRowRef.current && !pendingDeleteRowRef.current.contains(event.target)) {
+        setPendingDeleteId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [pendingDeleteId]);
+
   const activeProject = projects.find((project) => project.id === activeProjectId) || null;
 
   const handleSelect = async (sessionId, projectId) => {
@@ -117,6 +136,35 @@ function ChatHistory({
       setError(err.message || "Could not load that conversation.");
     } finally {
       setLoadingSessionId(null);
+    }
+  };
+
+  const handleRequestDelete = (event, sessionId) => {
+    event.stopPropagation();
+    setPendingDeleteId(sessionId);
+  };
+
+  const handleCancelDelete = (event) => {
+    event.stopPropagation();
+    setPendingDeleteId(null);
+  };
+
+  const handleConfirmDelete = async (event, sessionId) => {
+    event.stopPropagation();
+    if (isDeleting) return;
+    setIsDeleting(true);
+    setError(null);
+    try {
+      await deleteSession(sessionId);
+      setSessions((prev) => prev.filter((session) => session.id !== sessionId));
+      if (sessionId === activeSessionId) {
+        onNewChat();
+      }
+    } catch (err) {
+      setError(err.message || "Could not delete that conversation.");
+    } finally {
+      setIsDeleting(false);
+      setPendingDeleteId(null);
     }
   };
 
@@ -269,8 +317,40 @@ function ChatHistory({
       <ul className="chat-history__list">
         {sessions.map((session) => {
           const isActive = session.id === activeSessionId;
+          const isPendingDelete = session.id === pendingDeleteId;
+
+          if (isPendingDelete) {
+            return (
+              <li key={session.id} className="chat-history__row" ref={pendingDeleteRowRef}>
+                <div className="chat-history__item chat-history__item--confirm-delete">
+                  <span className="chat-history__item-body">
+                    <span className="chat-history__item-title">Delete this chat?</span>
+                  </span>
+                  <button
+                    className="chat-history__delete-confirm"
+                    onClick={(event) => handleConfirmDelete(event, session.id)}
+                    disabled={isDeleting}
+                    title="Delete"
+                    aria-label="Confirm delete"
+                  >
+                    <Check size={14} />
+                  </button>
+                  <button
+                    className="chat-history__delete-cancel"
+                    onClick={handleCancelDelete}
+                    disabled={isDeleting}
+                    title="Cancel"
+                    aria-label="Cancel delete"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              </li>
+            );
+          }
+
           return (
-            <li key={session.id}>
+            <li key={session.id} className="chat-history__row">
               <button
                 className={"chat-history__item" + (isActive ? " chat-history__item--active" : "")}
                 onClick={() => handleSelect(session.id, session.project_id)}
@@ -282,6 +362,14 @@ function ChatHistory({
                   <span className="chat-history__item-date">{formatRelativeTime(session.created_at)}</span>
                 </span>
                 {isActive && <span className="chat-history__item-dot" aria-hidden="true" />}
+              </button>
+              <button
+                className="chat-history__item-delete"
+                onClick={(event) => handleRequestDelete(event, session.id)}
+                title="Delete chat"
+                aria-label="Delete chat"
+              >
+                <Trash2 size={13} />
               </button>
             </li>
           );

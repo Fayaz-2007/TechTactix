@@ -1,5 +1,4 @@
 import { useState } from "react";
-import DocumentUpload from "./components/upload/DocumentUpload.jsx";
 import PipelineSteps from "./components/pipeline/PipelineSteps.jsx";
 import ChatWindow from "./components/chat/ChatWindow.jsx";
 import ChatHistory from "./components/history/ChatHistory.jsx";
@@ -16,17 +15,11 @@ import "./App.css";
 // the in-progress conversation is preserved.
 function App() {
   const [activeStage, setActiveStage] = useState(null);
-  const [documentId, setDocumentId] = useState(null);
-  const [activeDocument, setActiveDocument] = useState(null);
+  const documentId = null;
   const [lastAnswer, setLastAnswer] = useState(null);
   const [historyRefreshToken, setHistoryRefreshToken] = useState(0);
   const [sessionView, setSessionView] = useState({ epoch: 0, sessionId: null, messages: [] });
   const [activeProjectId, setActiveProjectId] = useState(null);
-
-  const handleUploaded = (result) => {
-    setActiveDocument(result);
-    setDocumentId(result.document_id);
-  };
 
   const handleNewChat = () => {
     setSessionView((prev) => ({ epoch: prev.epoch + 1, sessionId: null, messages: [] }));
@@ -70,20 +63,6 @@ function App() {
         />
 
         <div className="app-main-column">
-          <section className="app-panel">
-            <h2 className="app-panel__heading">Upload a document</h2>
-            <DocumentUpload
-              projectId={activeProjectId}
-              onStageChange={setActiveStage}
-              onUploaded={handleUploaded}
-            />
-            {activeDocument && (
-              <p className="app-active-document">
-                Currently asking about: <strong>{activeDocument.filename}</strong>
-              </p>
-            )}
-          </section>
-
           <section className="app-panel app-panel--tight">
             <PipelineSteps activeStage={activeStage} />
           </section>

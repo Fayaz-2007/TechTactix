@@ -13,6 +13,33 @@ from backend.modules.llm.prompt_builder import build_prompt
 logger = logging.getLogger(__name__)
 
 
+def _dedupe_sources(chunks: list) -> list:
+    """
+    Collapse retrieved chunks into one source entry per file, so a file
+    matched by several chunks shows up once in the response instead of once
+    per chunk.
+
+    Chunks are grouped by filename; a chunk with no filename falls back to
+    grouping by document_id, same as the display fallback in the frontend.
+    Within a group, the highest-scoring chunk wins (its document_id/chunk_id/
+    score are what's kept) — not an average, not the first one seen. The
+    result is sorted by score, highest first.
+    """
+    best_by_key: dict = {}
+    for chunk in chunks:
+        key = chunk.get("filename") or chunk.get("document_id")
+        score = chunk.get("score") or 0
+        existing = best_by_key.get(key)
+        if existing is None or score > (existing.get("score") or 0):
+            best_by_key[key] = {
+                "document_id": chunk.get("document_id"),
+                "chunk_id": chunk.get("chunk_id"),
+                "filename": chunk.get("filename"),
+                "score": chunk.get("score"),
+            }
+    return sorted(best_by_key.values(), key=lambda s: s.get("score") or 0, reverse=True)
+
+
 def _describe_retrieval(chunks: list) -> str:
     """Build a human-readable status line from the actual retrieval result."""
     if not chunks:
@@ -46,7 +73,10 @@ def run_query(query: str, document_id: Optional[str] = None, project_id: Optiona
             filenames), not placeholder text.
         str: each streamed text fragment from the model, in order.
         dict: exactly one final item, after all text fragments:
-            {"type": "done", "sources": [{"document_id": str, "chunk_id": str, "score": float}, ...]}
+            {"type": "done", "sources": [{"document_id": str, "chunk_id": str, "filename": str, "score": float}, ...]}
+            One entry per file (deduped by filename, or document_id when
+            filename is missing), keeping each file's highest-scoring chunk,
+            sorted by score descending.
 
     Any exception raised by retrieval or generation (e.g. Ollama being
     unreachable) propagates to the caller — this function does not swallow
@@ -65,12 +95,5 @@ def run_query(query: str, document_id: Optional[str] = None, project_id: Optiona
     for fragment in stream_chat(prompt):
         yield fragment
 
-    sources = [
-        {
-            "document_id": chunk.get("document_id"),
-            "chunk_id": chunk.get("chunk_id"),
-            "score": chunk.get("score"),
-        }
-        for chunk in retrieved_chunks
-    ]
+    sources = _dedupe_sources(retrieved_chunks)
     yield {"type": "done", "sources": sources}

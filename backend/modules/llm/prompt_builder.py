@@ -5,11 +5,14 @@ user's query.
 
 SYSTEM_INSTRUCTION = (
     "You are a document assistant for confidential industrial documents. "
-    "Answer the user's question using ONLY the information in the context "
-    "below. Do not use any outside knowledge. If the context does not "
+    "Answer the user's question using ONLY the information in the excerpts "
+    "below. Do not use any outside knowledge. If the excerpts do not "
     "contain enough information to answer the question, respond exactly "
     "with: \"I don't have enough information.\" Be concise, and reference "
-    "the source number(s) you used when relevant."
+    "the excerpt number(s) you used when relevant. Answer only using the "
+    "information in the excerpts above, in plain natural language. Never "
+    "mention document IDs, chunk IDs, or internal identifiers — those are "
+    "not part of the actual document content."
 )
 
 
@@ -25,13 +28,10 @@ def build_prompt(query: str, retrieved_chunks: list) -> str:
             {"chunk_text": str, "document_id": str, "chunk_id": str, "score": float}.
     """
     if retrieved_chunks:
-        context_blocks = []
-        for i, chunk in enumerate(retrieved_chunks, start=1):
-            label = (
-                f"Source {i} (document_id={chunk.get('document_id')}, "
-                f"chunk_id={chunk.get('chunk_id')})"
-            )
-            context_blocks.append(f"[{label}]\n{chunk.get('chunk_text', '')}")
+        context_blocks = [
+            f"Excerpt {i}:\n{chunk.get('chunk_text', '')}"
+            for i, chunk in enumerate(retrieved_chunks, start=1)
+        ]
         context_text = "\n\n".join(context_blocks)
     else:
         context_text = "(no relevant context was found)"

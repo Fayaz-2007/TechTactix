@@ -253,3 +253,18 @@ export async function getSessionMessages(sessionId) {
   }
   return response.json();
 }
+
+/**
+ * Permanently delete a past chat session.
+ * @param {string} sessionId
+ * @returns {Promise<{status: string, session_id: string}>}
+ */
+export async function deleteSession(sessionId) {
+  const response = await fetch(`/api/history/${encodeURIComponent(sessionId)}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorDetail(response));
+  }
+  return response.json();
+}

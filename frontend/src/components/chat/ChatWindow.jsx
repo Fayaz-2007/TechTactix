@@ -228,7 +228,7 @@ function ChatWindow({ documentId, sessionId, projectId, initialMessages, onStage
                   <div className="chat-message__sources-list">
                     {message.sources.map((source, sourceIndex) => (
                       <span className="chat-message__source-chip" key={sourceIndex}>
-                        {source.document_id ?? "unknown"}
+                        {source.filename || source.document_id || "unknown"}
                         {typeof source.score === "number" && (
                           <span className="chat-message__source-score">
                             {source.score.toFixed(2)}

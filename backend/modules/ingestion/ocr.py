@@ -15,6 +15,7 @@ installed and on PATH for rendering scanned PDF pages (used by pdf2image).
 """
 
 import logging
+import os
 import time
 from pathlib import Path
 from typing import Optional
@@ -27,6 +28,13 @@ from pypdf import PdfReader
 from backend.modules.ingestion.excel import extract_excel_text
 
 logger = logging.getLogger(__name__)
+
+# On machines where Tesseract isn't on PATH (e.g. a default Windows install),
+# point pytesseract at the known binary location. Guarded by a path check so
+# this is a no-op on machines where Tesseract is already discoverable.
+_WINDOWS_TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+if os.path.exists(_WINDOWS_TESSERACT_PATH):
+    pytesseract.pytesseract.tesseract_cmd = _WINDOWS_TESSERACT_PATH
 
 SUPPORTED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg"}
 SUPPORTED_PDF_EXTENSIONS = {".pdf"}

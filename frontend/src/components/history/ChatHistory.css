@@ -247,7 +247,15 @@
   gap: 2px;
 }
 
+.chat-history__row {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
 .chat-history__item {
+  flex: 1;
+  min-width: 0;
   width: 100%;
   text-align: left;
   background: transparent;
@@ -314,4 +322,75 @@
   border-radius: 50%;
   background: var(--color-accent);
   flex-shrink: 0;
+}
+
+/* --- Delete session --- */
+
+.chat-history__item-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.chat-history__row:hover .chat-history__item-delete,
+.chat-history__item-delete:focus-visible {
+  opacity: 1;
+}
+
+.chat-history__item-delete:hover {
+  background: var(--color-neutral-bg);
+  color: var(--color-danger);
+}
+
+.chat-history__item--confirm-delete {
+  cursor: default;
+  border: 1px solid var(--color-border);
+}
+
+.chat-history__delete-confirm,
+.chat-history__delete-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.chat-history__delete-confirm {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.chat-history__delete-confirm:hover:not(:disabled) {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.chat-history__delete-cancel {
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.chat-history__delete-cancel:hover:not(:disabled) {
+  background: var(--color-neutral-bg);
+  color: var(--color-text);
+}
+
+.chat-history__delete-confirm:disabled,
+.chat-history__delete-cancel:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
